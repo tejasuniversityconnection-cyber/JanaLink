@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JanaLink</title>
+
+<style>
+body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
+
+/* TOP BAR */
+.top-bar {
+    background:#eee;
+    border:2px solid black;
+    padding:10px 20px;
+}
+.top-bar h1 { margin:0; color:#f4a300; font-size:26px; }
+
+/* WRAPPER */
+.wrapper { padding:25px; }
+
+/* SIGN IN */
+.signin-box {
+    background:white;
+    border:2px solid #333;
+    padding:18px;
+    margin-bottom:25px;
+    max-width:450px;
+    font-size:14px;
+}
+.signin-box input {
+    width:95%;
+    padding:8px;
+    margin:6px 0;
+}
+.signin-box button {
+    margin-top:10px;
+    padding:8px 14px;
+    font-weight:bold;
+    background:#f4a300;
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+}
+.signin-box button:hover { background:#ff6b00; color:white; }
+
+.welcome-box {
+    background:#e6ffe6;
+    border:2px solid #2e7d32;
+    padding:18px;
+    margin-bottom:25px;
+    max-width:450px;
+    font-weight:bold;
+    color:#2e7d32;
+}
+
+/* VIDEO */
+.video-box {
+    width:650px;
+    height:360px;
+    background:black;
+    margin-bottom:20px;
+    position:relative;
+    border:2px solid #333;
+}
+.video-box iframe { width:100%; height:100%; border:none; }
+
+.video-link {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background:#f4a300;
+    padding:15px 30px;
+    font-weight:bold;
+    text-decoration:none;
+    border-radius:5px;
+    color:black;
+}
+.video-link:hover { background:#ff6b00; color:white; }
+
+/* TEXT */
+.text-block {
+    width:900px;
+    font-size:14.5px;
+    line-height:1.7;
+    margin-bottom:70px;
+}
+.section-gap { margin-top:90px; }
+
+.note {
+    background:#fff3cd;
+    border:1px solid #ffc107;
+    padding:10px;
+    margin-bottom:15px;
+    border-radius:4px;
+}
+
+/* ANALYTICS */
+.analytics {
+    position:fixed;
+    bottom:15px;
+    right:15px;
+    background:#e3f2fd;
+    border:2px solid #1565c0;
+    padding:10px 14px;
+    font-size:13px;
+    border-radius:6px;
+    color:#0d47a1;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+    <h1>JanaLink</h1>
+</div>
+
+<div class="wrapper">
+
+<div id="signinBox" class="signin-box">
+<strong>Sign In / Sign Up (Optional)</strong><br><br>
+<input type="text" id="username" placeholder="Username">
+<input type="password" placeholder="Password">
+<button onclick="enterSite()">Continue</button>
+<small>
+This is a demonstration feature. JanaLink does not store personal data.
+Usage statistics are stored only on this device.
+</small>
+</div>
+
+<div id="welcomeBox" class="welcome-box" style="display:none;"></div>
+
+<div class="note">
+<strong>Note:</strong> If videos don't load, click the "Watch on YouTube" buttons.
+</div>
+
+<!-- VIDEO 1 -->
+<div class="video-box">
+<iframe src="https://www.youtube.com/embed/nTNDBLaKC3U?rel=0"></iframe>
+<a href="https://www.youtube.com/watch?v=nTNDBLaKC3U" target="_blank" class="video-link">▶ Watch on YouTube</a>
+</div>
+
+<div class="text-block">
+<p>The One Nation One Ration Card (ONORC) scheme allows people to use their ration card anywhere in India.</p>
+<p>This helps migrant workers and low-income families.</p>
+<p>You can receive subsidized grains using Aadhaar or ration card.</p>
+<p>Aadhaar verification ensures benefits reach the correct person.</p>
+<p>Check the <b>Mera Ration Mobile App</b>.</p>
+</div>
+
+<!-- VIDEO 2 -->
+<div class="video-box section-gap">
+<iframe src="https://www.youtube.com/embed/phPLBaTVilQ?rel=0"></iframe>
+<a href="https://www.youtube.com/watch?v=phPLBaTVilQ" target="_blank" class="video-link">▶ Watch on YouTube</a>
+</div>
+
+<div class="text-block">
+<p>वन नेशन वन राशन कार्ड योजना लोगों को भारत में कहीं भी राशन लेने की सुविधा देती है।</p>
+<p>यह प्रवासी मजदूरों और गरीब परिवारों के लिए उपयोगी है।</p>
+<p>राशन विवरण डिजिटल रूप से जुड़ा होता है।</p>
+<p>"मेरा राशन मोबाइल ऐप" इससे जुड़ा है।</p>
+</div>
+
+</div>
+
+<!-- ANALYTICS PANEL -->
+<div class="analytics" id="analytics">Database: Connecting...</div>
+
+<script>
+// Simple local database
+let db = JSON.parse(localStorage.getItem("janalink")) || { visits:0, users:0 };
+
+// Count visit once per session
+if (!sessionStorage.getItem("visited")) {
+    db.visits++;
+    sessionStorage.setItem("visited", true);
+    localStorage.setItem("janalink", JSON.stringify(db));
+}
+
+function enterSite(){
+    const user = document.getElementById("username").value.trim();
+    document.getElementById("signinBox").style.display="none";
+    const welcome = document.getElementById("welcomeBox");
+
+    if(user){
+        db.users++;
+        localStorage.setItem("janalink", JSON.stringify(db));
+        welcome.textContent = "Welcome, " + user + "! You have successfully entered JanaLink.";
+    } else {
+        welcome.textContent = "Welcome! You have successfully entered JanaLink.";
+    }
+
+    welcome.style.display="block";
+    updatePanel();
+}
+
+function updatePanel(){
+    document.getElementById("analytics").innerHTML =
+        "<strong>Database:</strong> Connected<br>" +
+        "Total Visits: " + db.visits + "<br>" +
+        "Users Entered: " + db.users;
+}
+
+updatePanel();
+</script>
+
+</body>
+</html>
