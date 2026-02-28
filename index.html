@@ -206,5 +206,43 @@ function updatePanel(){
 updatePanel();
 </script>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBPwLuc8fOSPmCxSpOmuGdXwEa__WvLvtM",
+  authDomain: "janalink-comments-d3d95.firebaseapp.com",
+  projectId: "janalink-comments-d3d95",
+  storageBucket: "janalink-comments-d3d95.firebasestorage.app",
+  messagingSenderId: "647168044661",
+  appId: "1:647168044661:web:bfd3d989f88ff65878123c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.sendComment = async function() {
+  const nickname = document.getElementById("nickname").value || "Anonymous";
+  const message = document.getElementById("message").value;
+
+  if (!message.trim()) {
+      document.getElementById("commentStatus").innerText = "Please write something.";
+      return;
+  }
+
+  await addDoc(collection(db, "comments"), {
+      nickname: nickname,
+      message: message,
+      timestamp: Date.now()
+  });
+
+  document.getElementById("commentStatus").innerText = "Comment submitted!";
+  document.getElementById("message").value = "";
+};
+
+console.log("Firebase connected successfully!");
+</script>
+
 </body>
 </html>
