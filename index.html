@@ -17,7 +17,7 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
 
 .wrapper { padding:25px; }
 
-.signin-box {
+.signin-box, .comment-box {
     background:white;
     border:2px solid #333;
     padding:18px;
@@ -25,12 +25,15 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
     max-width:450px;
     font-size:14px;
 }
-.signin-box input {
+
+.signin-box input, .comment-box input, .comment-box textarea {
     width:95%;
     padding:8px;
     margin:6px 0;
+    font-size:14px;
 }
-.signin-box button {
+
+.signin-box button, .comment-box button {
     margin-top:10px;
     padding:8px 14px;
     font-weight:bold;
@@ -39,7 +42,7 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
     border-radius:4px;
     cursor:pointer;
 }
-.signin-box button:hover { background:#ff6b00; color:white; }
+.signin-box button:hover, .comment-box button:hover { background:#ff6b00; color:white; }
 
 .welcome-box {
     background:#e6ffe6;
@@ -102,6 +105,16 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
     color:#0d47a1;
     box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
+
+.comment-box textarea {
+    height:80px;
+}
+
+#commentStatus {
+    margin-top:8px;
+    font-size:13px;
+    color:green;
+}
 </style>
 </head>
 
@@ -113,6 +126,7 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
 
 <div class="wrapper">
 
+<!-- SIGN IN -->
 <div id="signinBox" class="signin-box">
 <strong>Sign In / Sign Up (Optional)</strong><br><br>
 <input type="text" id="username" placeholder="Username">
@@ -158,28 +172,27 @@ Usage statistics are stored only on this device.
 </div>
 
 <!-- COMMENT SECTION -->
-<hr style="margin-top:60px;">
+<div class="comment-box section-gap">
 <h2>Leave a Comment</h2>
-
 <input type="text" id="nickname" placeholder="Name (optional)">
-<br><br>
 <textarea id="message" placeholder="Write your comment"></textarea>
-<br><br>
 <button onclick="sendComment()">Submit Comment</button>
 <div id="commentStatus"></div>
-
 </div>
 
+</div> <!-- END wrapper -->
+
+<!-- ANALYTICS PANEL -->
 <div class="analytics" id="analytics">Database: Connecting...</div>
 
 <script>
 // Local analytics
-let db = JSON.parse(localStorage.getItem("janalink")) || { visits:0, users:0 };
+let localDB = JSON.parse(localStorage.getItem("janalink")) || { visits:0, users:0 };
 
 if (!sessionStorage.getItem("visited")) {
-    db.visits++;
+    localDB.visits++;
     sessionStorage.setItem("visited", true);
-    localStorage.setItem("janalink", JSON.stringify(db));
+    localStorage.setItem("janalink", JSON.stringify(localDB));
 }
 
 function enterSite(){
@@ -188,8 +201,8 @@ function enterSite(){
     const welcome = document.getElementById("welcomeBox");
 
     if(user){
-        db.users++;
-        localStorage.setItem("janalink", JSON.stringify(db));
+        localDB.users++;
+        localStorage.setItem("janalink", JSON.stringify(localDB));
         welcome.textContent = "Welcome, " + user + "! You have successfully entered JanaLink.";
     } else {
         welcome.textContent = "Welcome! You have successfully entered JanaLink.";
@@ -202,14 +215,14 @@ function enterSite(){
 function updatePanel(){
     document.getElementById("analytics").innerHTML =
         "<strong>Database:</strong> Connected<br>" +
-        "Total Visits: " + db.visits + "<br>" +
-        "Users Entered: " + db.users;
+        "Total Visits: " + localDB.visits + "<br>" +
+        "Users Entered: " + localDB.users;
 }
 
 updatePanel();
 </script>
 
-<!-- FIREBASE -->
+<!-- FIREBASE COMMENTS -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -224,22 +237,26 @@ const app = initializeApp(firebaseConfig);
 const firestoreDB = getFirestore(app);
 
 window.sendComment = async function() {
-  const nickname = document.getElementById("nickname").value || "Anonymous";
-  const message = document.getElementById("message").value;
+    const nickname = document.getElementById("nickname").value || "Anonymous";
+    const message = document.getElementById("message").value;
 
-  if (!message.trim()) {
-      document.getElementById("commentStatus").innerText = "Please write something.";
-      return;
-  }
+    if (!message.trim()) {
+        document.getElementById("commentStatus").innerText = "Please write something.";
+        return;
+    }
 
-  await addDoc(collection(firestoreDB, "comments"), {
-      nickname: nickname,
-      message: message,
-      timestamp: Date.now()
-  });
-
-  document.getElementById("commentStatus").innerText = "Comment submitted!";
-  document.getElementById("message").value = "";
+    try {
+        await addDoc(collection(firestoreDB, "comments"), {
+            nickname: nickname,
+            message: message,
+            timestamp: Date.now()
+        });
+        document.getElementById("commentStatus").innerText = "Comment submitted!";
+        document.getElementById("message").value = "";
+    } catch (err) {
+        document.getElementById("commentStatus").innerText = "Error submitting comment.";
+        console.error(err);
+    }
 };
 
 console.log("Firebase connected successfully!");
