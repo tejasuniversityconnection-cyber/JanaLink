@@ -8,7 +8,6 @@
 <style>
 body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
 
-/* TOP BAR */
 .top-bar {
     background:#eee;
     border:2px solid black;
@@ -16,10 +15,8 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
 }
 .top-bar h1 { margin:0; color:#f4a300; font-size:26px; }
 
-/* WRAPPER */
 .wrapper { padding:25px; }
 
-/* SIGN IN */
 .signin-box {
     background:white;
     border:2px solid #333;
@@ -54,7 +51,6 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
     color:#2e7d32;
 }
 
-/* VIDEO */
 .video-box {
     width:650px;
     height:360px;
@@ -78,7 +74,6 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
 }
 .video-link:hover { background:#ff6b00; color:white; }
 
-/* TEXT */
 .text-block {
     width:900px;
     font-size:14.5px;
@@ -95,7 +90,6 @@ body { margin:0; font-family:Arial, Helvetica, sans-serif; background:#f1f1f1; }
     border-radius:4px;
 }
 
-/* ANALYTICS */
 .analytics {
     position:fixed;
     bottom:15px;
@@ -163,16 +157,25 @@ Usage statistics are stored only on this device.
 <p>"मेरा राशन मोबाइल ऐप" इससे जुड़ा है।</p>
 </div>
 
+<!-- COMMENT SECTION -->
+<hr style="margin-top:60px;">
+<h2>Leave a Comment</h2>
+
+<input type="text" id="nickname" placeholder="Name (optional)">
+<br><br>
+<textarea id="message" placeholder="Write your comment"></textarea>
+<br><br>
+<button onclick="sendComment()">Submit Comment</button>
+<div id="commentStatus"></div>
+
 </div>
 
-<!-- ANALYTICS PANEL -->
 <div class="analytics" id="analytics">Database: Connecting...</div>
 
 <script>
-// Simple local database
+// Local analytics
 let db = JSON.parse(localStorage.getItem("janalink")) || { visits:0, users:0 };
 
-// Count visit once per session
 if (!sessionStorage.getItem("visited")) {
     db.visits++;
     sessionStorage.setItem("visited", true);
@@ -206,21 +209,19 @@ function updatePanel(){
 updatePanel();
 </script>
 
+<!-- FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBPwLuc8fOSPmCxSpOmuGdXwEa__WvLvtM",
-  authDomain: "janalink-comments-d3d95.firebaseapp.com",
-  projectId: "janalink-comments-d3d95",
-  storageBucket: "janalink-comments-d3d95.firebasestorage.app",
-  messagingSenderId: "647168044661",
-  appId: "1:647168044661:web:bfd3d989f88ff65878123c"
+  apiKey: "PASTE_YOURS",
+  authDomain: "PASTE_YOURS",
+  projectId: "PASTE_YOURS"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const firestoreDB = getFirestore(app);
 
 window.sendComment = async function() {
   const nickname = document.getElementById("nickname").value || "Anonymous";
@@ -231,7 +232,7 @@ window.sendComment = async function() {
       return;
   }
 
-  await addDoc(collection(db, "comments"), {
+  await addDoc(collection(firestoreDB, "comments"), {
       nickname: nickname,
       message: message,
       timestamp: Date.now()
